@@ -20,16 +20,16 @@ app.listen(PORT, () => {
 // Routes
 // post route for user sign up (API endpoint simulation)
 app.post('/api/auth/signup', (req, res) => {
-    // sign up logic goes here
     const userData = req.body;
+    // sign up logic goes here
     res.send(`User signed up with email: ${userData.email}`);
 })
 
 // post route for event creation
 app.post('/api/events', (req, res) => {
-    // event creation logic goes here
     const eventData = req.body;
-    res.send(`Event created: ${JSON.stringify(eventData)}`);
+    // event creation logic goes here
+    res.send(`Event created: ${eventData.name}`);
 })
 
 // route for retrieving events

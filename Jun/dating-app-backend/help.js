@@ -23,11 +23,12 @@ app.listen(PORT, () => {
     console.log('Server running on http://localhost:PORT', PORT);
 })
 
-GET: retrieve data (like visiting a webpage)
-LISTEN: starts server and make it listen for connections
-POST: send data to server (usually for creating or submitting forms)
-PUT: update existing data
-DELETE: remove data
+LISTEN: server-side: starts server and make it listen for connections
+
+GET: client-side: retrieve data (like visiting a webpage) from server
+POST: client side: send data to server (usually for creating or submitting forms)
+PUT: client side: update existing data
+DELETE: client side: remove data
 
 // post route for user sign up (API endpoint simulation)
 app.post('/api/auth/signup', (req, res) => {
