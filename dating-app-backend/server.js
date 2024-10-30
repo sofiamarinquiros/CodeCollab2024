@@ -1,3 +1,12 @@
+const mongoose = require('mongoose');
+const uri = 'mongodb+srv://sam2451:codecollab@eventual.riz2z.mongodb.net/?retryWrites=true&w=majority&appName=eventual'
+// Connect to MongoDB 
+mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
 // Server creation
 const express = require('express');
 const app = express();
@@ -19,20 +28,57 @@ app.listen(PORT, () => {
 
 // Routes
 // post route for user sign up (API endpoint simulation)
-app.post('/api/auth/signup', (req, res) => {
-    const userData = req.body;
-    // sign up logic goes here
-    res.send(`User signed up with email: ${userData.email}`);
-})
+const bcrypt = require('bcrypt');
+const User = require('./models/User');
+
+app.post('/api/auth/signup', async (req, res) => {
+    const { email, password, name } = req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = new User({ email, password: hashedPassword, name });
+        await user.save();
+        res.status(201).send(`User created with email: ${user.email}`);
+    } catch (error) {
+        res.status(400).send("Error creating user");
+    }
+});
+
 
 // post route for event creation
-app.post('/api/events', (req, res) => {
-    const eventData = req.body;
-    // event creation logic goes here
-    res.send(`Event created: ${eventData.name}`);
-})
+const Event = require('./models/Event');
+
+app.post('/api/events', async (req, res) => {
+    const { name, date, location, organizer } = req.body;
+    try {
+        const event = new Event({ name, date, location, organizer });
+        await event.save();
+        res.status(201).send(`Event created: ${event.name}`);
+    } catch (error) {
+        res.status(400).send("Error creating event");
+    }
+});
+
 
 // route for retrieving events
-app.get('/api/events', (req, res) => {
+app.get('/api/events', async (req, res) => {
+    try {
+        const events = await Event.find();
+        res.json(events);
+    } catch (error) {
+        res.status(500).send("Error retrieving events");
+    }
+});
+const jwt = require('jsonwebtoken');
 
-})
+app.post('/api/auth/login', async (req, res) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user && await bcrypt.compare(password, user.password)) {
+        const token = jwt.sign({ id: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
+        res.json({ message: "Logged in successfully", token });
+    } else {
+        res.status(401).send("Invalid email or password");
+    }
+});
+
+
